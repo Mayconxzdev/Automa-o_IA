@@ -1,216 +1,167 @@
-# Automation AI Advisor
+# 🤖 AutoFluxo - Sistema de Automação com IA
 
-Sistema completo de automação com IA para gerenciamento de projetos e análise de ROI.
+Sistema completo de automação de processos empresariais com inteligência artificial, oferecendo recomendações personalizadas e análises avançadas.
 
-## 🚀 Instalação e Execução
+## 🚀 Funcionalidades
 
-### Pré-requisitos
-- Python 3.8 ou superior
-- pip (gerenciador de pacotes Python)
+### 🎯 Central de IA
+- **Geração de Recomendações**: IA analisa processos e sugere automações
+- **Visualização de Fluxos**: Diagramas interativos dos processos
+- **Múltiplas IAs**: Suporte a Google Gemini, OpenAI, Groq e Hugging Face
 
-### 1. Clone ou baixe o projeto
+### 📊 Dashboard Unificado
+- **Visão Geral**: Métricas e KPIs em tempo real
+- **Insights Inteligentes**: Análises preditivas e sugestões
+- **Relatórios Avançados**: Dados detalhados de performance
+
+### 🏢 Smart Office
+- **Gestão de Projetos**: Controle completo de projetos de automação
+- **Monitoramento IoT**: Sensores e dispositivos conectados
+- **Analytics**: Análises de dados e tendências
+- **Relatórios de IA**: Relatórios gerados automaticamente
+
+## 🛠️ Instalação
+
+### 1. Clone o Repositório
 ```bash
-# Se usando Git
-git clone <url-do-repositorio>
-cd automation-ai-advisor
-
-# Ou simplesmente baixe e extraia os arquivos
+git clone https://github.com/Mayconxzdev/Automa-o_IA.git
+cd Automa-o_IA
 ```
 
-### 2. Instale as dependências
+### 2. Instale as Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure as variáveis de ambiente (opcional)
+### 3. Configure as Chaves de API
 ```bash
 # Copie o arquivo de exemplo
-cp env.example .env
+copy config_example.env .env
 
-# Edite o arquivo .env com suas configurações
-# Principalmente a GEMINI_API_KEY para usar a IA
+# Edite o arquivo .env com suas chaves
+# GEMINI_API_KEY=sua_chave_aqui
+# OPENAI_API_KEY=sua_chave_aqui
+# GROQ_API_KEY=sua_chave_aqui
+# HUGGINGFACE_API_KEY=sua_chave_aqui
 ```
 
-### 4. Execute a aplicação
+### 4. Execute o Sistema
 ```bash
 python app_final.py
 ```
 
-### 5. Acesse o sistema
-- **URL:** http://localhost:5000
-- **Login:** demo / demo123
-- **Health Check:** http://localhost:5000/health
+### 5. Acesse o Sistema
+- **URL**: http://localhost:5000
+- **Login Demo**: demo / demo123
+
+## 🔑 Configuração das IAs
+
+### Google Gemini (Já Configurado)
+- ✅ 1.500 requests/dia gratuitos
+- ✅ Já configurado no sistema
+
+### OpenAI GPT-4o Mini (Recomendado)
+- 🔗 [Obter Chave](https://platform.openai.com/api-keys)
+- 📊 500 requests/dia gratuitos
+- 💳 Requer cartão de crédito
+
+### Groq Llama 3.1 (Mais Generoso)
+- 🔗 [Obter Chave](https://console.groq.com/keys)
+- 📊 14.400 requests/dia gratuitos
+- 🆓 Conta gratuita
+
+### Hugging Face DeepSeek-R1 (Muito Generoso)
+- 🔗 [Obter Chave](https://huggingface.co/settings/tokens)
+- 📊 1.000 requests/dia gratuitos
+- 🆓 Conta gratuita
 
 ## 📁 Estrutura do Projeto
 
 ```
-automation-ai-advisor/
-├── app_final.py              # Aplicação principal
-├── database.py               # Sistema de banco de dados
-├── config.py                 # Configurações
+AutoFluxo/
+├── app_final.py              # Aplicação principal Flask
+├── ai_config.py              # Configuração das IAs
 ├── requirements.txt          # Dependências Python
-├── env.example              # Exemplo de variáveis de ambiente
-├── automation_advisor.db     # Banco de dados SQLite
-├── static/                  # Arquivos estáticos
-│   ├── css/
-│   │   └── style.css
-│   ├── js/
-│   │   └── app.js           # JavaScript consolidado
-│   ├── icons/               # Ícones PWA
-│   ├── manifest.json
-│   └── sw.js
+├── config_example.env        # Exemplo de configuração
+├── .gitignore               # Arquivos ignorados pelo Git
+├── static/                  # Assets estáticos
+│   ├── css/style.css
+│   ├── js/app.js
+│   └── icons/
 └── templates/               # Templates HTML
-    ├── auth/
-    │   └── login.html
-    └── dashboard.html
+    ├── auth/login.html
+    ├── central_ia.html
+    ├── unified_dashboard.html
+    └── smart_office_*.html
 ```
 
-## 🎯 Funcionalidades
+## 🔐 Segurança
 
-### 🤖 Sistema de IA
-- ✅ Integração com Google Gemini 2.5 Flash
-- ✅ Sistema de fallback inteligente
-- ✅ Recomendações estruturadas com ferramentas específicas
-- ✅ Timeout e tratamento de erros robusto
+- ✅ Chaves de API protegidas em variáveis de ambiente
+- ✅ Arquivo `.env` no `.gitignore`
+- ✅ Zero chaves sensíveis no código
+- ✅ Configuração segura com fallbacks
 
-### 👤 Sistema de Usuários
-- ✅ Autenticação com Flask-Login
-- ✅ Banco de dados SQLite local
-- ✅ Dados específicos por usuário
+## 📊 Total de Cotas Gratuitas
 
-### 📊 Dashboard Completo
-- ✅ Módulos: Dashboard, Projetos, ROI, Inteligência
-- ✅ Gráficos interativos com Chart.js
-- ✅ Sistema Kanban com drag & drop
-- ✅ Análise de ROI e métricas
+**15.900 requests/dia** distribuídas entre as IAs!
 
-### 🎨 Interface Moderna
-- ✅ Bootstrap 5 responsivo
-- ✅ Modo escuro/claro
-- ✅ PWA (Progressive Web App)
-- ✅ Notificações toast
-- ✅ Sistema de loading
+## 🆘 Suporte
 
-## 🔧 Configurações
+### Problemas Comuns
 
-### Variáveis de Ambiente
+**Erro: "ModuleNotFoundError: No module named 'dotenv'"**
 ```bash
-# Configurações da aplicação
-SECRET_KEY=sua-chave-secreta
-DEBUG=True
-HOST=0.0.0.0
-PORT=5000
-
-# Configurações do banco de dados
-DATABASE_PATH=automation_advisor.db
-
-# Configurações do Google Gemini AI
-GEMINI_API_KEY=sua-chave-gemini
-GEMINI_MODEL=gemini-2.5-flash
-GEMINI_TIMEOUT=30
+pip install python-dotenv
 ```
 
-### Configurações do Gemini
-- **Modelo:** gemini-2.5-flash
-- **Timeout:** 30 segundos
-- **Fallback:** Sistema inteligente de simulação
+**Erro: "Chave de API não encontrada"**
+- Verifique se o arquivo `.env` existe
+- Verifique se as chaves estão corretas
+- Reinicie o servidor após alterar o `.env`
 
-## 🛡️ Segurança
+**Sistema não funciona sem chaves**
+- O sistema tem fallback para simulação inteligente
+- Funciona mesmo sem todas as chaves configuradas
 
-- ✅ Autenticação com hash de senha
-- ✅ Sessões seguras
-- ✅ Validação de entrada
-- ✅ Proteção contra SQL injection
-- ✅ CORS configurado
+## 🚀 Tecnologias
 
-## 📱 PWA Features
+- **Backend**: Flask, Python
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
+- **IA**: Google Gemini, OpenAI, Groq, Hugging Face
+- **Banco de Dados**: SQLite
+- **Gráficos**: Chart.js
+- **Autenticação**: Flask-Login
 
-- ✅ Manifest.json configurado
-- ✅ Service Worker implementado
-- ✅ Ícones para diferentes dispositivos
-- ✅ Instalação como app nativo
-- ✅ Funcionamento offline básico
+## 📈 Roadmap
 
-## 🎨 Temas
-
-- ✅ Modo claro (padrão)
-- ✅ Modo escuro
-- ✅ Persistência de preferência
-- ✅ Atualização automática de gráficos
-
-## 🌐 APIs Disponíveis
-
-### Autenticação
-- `POST /login` - Login de usuário
-- `GET /logout` - Logout de usuário
-
-### Dashboard
-- `GET /api/user/analytics` - Dados analíticos
-- `GET /api/user/projects` - Projetos do usuário
-- `GET /api/user/iot-metrics` - Métricas IoT
-
-### Recomendações
-- `GET /api/user/recommendations` - Recomendações recentes
-- `POST /api/generate-recommendations` - Gerar novas recomendações
-
-### Projetos
-- `POST /api/user/projects` - Criar projeto
-- `PUT /api/user/projects/<id>` - Atualizar projeto
-- `DELETE /api/user/projects/<id>` - Deletar projeto
-
-### Sistema
-- `GET /health` - Health check
-- `GET /api/language` - Idioma atual
-- `GET /api/notifications` - Notificações
-
-## 🚀 Deploy
-
-### Desenvolvimento
-```bash
-python app_final.py
-```
-
-### Produção
-```bash
-# Usar WSGI server como Gunicorn
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app_final:app
-```
-
-## 🐛 Solução de Problemas
-
-### Erro de dependências
-```bash
-# Reinstalar dependências
-pip install --upgrade -r requirements.txt
-```
-
-### Erro de banco de dados
-```bash
-# Deletar banco e recriar
-rm automation_advisor.db
-python app_final.py
-```
-
-### Erro de porta em uso
-```bash
-# Alterar porta no arquivo app_final.py
-app.run(debug=True, host='0.0.0.0', port=5001)
-```
-
-## 📞 Suporte
-
-Para suporte ou dúvidas:
-- 📧 **Email:** support@automation-ai-advisor.com
-- 📚 **Documentação:** [Wiki do Projeto]
-- 🐛 **Bugs:** [Issues do GitHub]
+- [ ] Integração com mais IAs
+- [ ] Dashboard mobile responsivo
+- [ ] API REST completa
+- [ ] Integração com CRM/ERP
+- [ ] Automação de workflows
+- [ ] Relatórios em PDF/Excel
 
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 
+## 👥 Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para:
+
+1. Fazer um fork do projeto
+2. Criar uma branch para sua feature
+3. Fazer commit das mudanças
+4. Fazer push para a branch
+5. Abrir um Pull Request
+
+## 📞 Contato
+
+- **Desenvolvedor**: Maycon
+- **GitHub**: [@Mayconxzdev](https://github.com/Mayconxzdev)
+- **Projeto**: [AutoFluxo](https://github.com/Mayconxzdev/Automa-o_IA)
+
 ---
 
-**🎉 Sistema 100% Funcional e Pronto para Uso!**
-
-*Versão 2.0.0 - Totalmente otimizada e livre de código redundante*
+**AutoFluxo** - Transformando processos empresariais com inteligência artificial! 🚀

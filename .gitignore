@@ -1,0 +1,35 @@
+# Arquivos de configuração sensíveis
+.env
+*.env
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Arquivos de teste temporários
+test_*.html
+test_*.py
+
+# Logs
+*.log
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
