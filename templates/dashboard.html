@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Automation AI Advisor</title>
+    
+    <!-- Acessibilidade -->
+    <meta name="description" content="Dashboard para gerenciamento de projetos de automação e análise de ROI">
+    <meta name="keywords" content="automação, IA, ROI, projetos, dashboard">
+    <meta name="author" content="Automation AI Advisor">
+    
+    <!-- ARIA Labels e Roles -->
+    <meta name="theme-color" content="#0d6efd">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AI Advisor">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <style>
+        .flow-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .flow-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .flow-visualization {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+            position: relative;
+        }
+        .flow-node {
+            position: absolute;
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .flow-node.trigger {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .flow-node.condition {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        .flow-node.action {
+            border-color: #007bff;
+            background: #d1ecf1;
+        }
+        .flow-connection {
+            position: absolute;
+            height: 2px;
+            background: #007bff;
+            z-index: 1;
+        }
+        .flow-connection::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid #007bff;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+        .template-card {
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s;
+        }
+        .template-card:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" role="navigation" aria-label="Navegação principal">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}" aria-label="Automation AI Advisor - Página inicial">
+                <i class="bi bi-robot" aria-hidden="true"></i> Automation AI Advisor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#intelligence" onclick="showModule('intelligence')">
+                            <i class="bi bi-brain"></i> Central de IA
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects" onclick="showModule('projects')">
+                            <i class="bi bi-kanban"></i> Meus Projetos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard" onclick="showModule('dashboard')">
+                            <i class="bi bi-graph-up"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#roi" onclick="showModule('roi')">
+                            <i class="bi bi-calculator"></i> ROI
+                        </a>
+                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/recommended-flows">
+                        <i class="bi bi-lightbulb"></i> Fluxos Recomendados
+                    </a>
+                </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">
+                                <i class="bi bi-person"></i> Perfil
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Sair
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="container-fluid mt-4" role="main" aria-label="Conteúdo principal">
+        
+        <!-- Welcome Section -->
+        <div id="welcome" class="module-section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="jumbotron bg-light p-5 rounded">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h1 class="display-4">Bem-vindo, {{ user.username }}!</h1>
+                                <p class="lead">{{ user.company_name }}</p>
+                                <p>Gerencie suas automações e acompanhe o ROI dos seus projetos</p>
+                            </div>
+                            
+                    <!-- Toggle Modo Escuro -->
+                    <div class="me-3">
+                        <button class="theme-toggle" id="themeToggle" title="Alternar modo escuro" aria-label="Alternar entre modo claro e escuro">
+                            <i class="bi bi-sun" id="themeIcon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Seletor de Idioma -->
+                    <div class="me-3">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languageSelector">
+                                <i class="bi bi-translate" aria-hidden="true"></i> <span id="currentLanguage">PT</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="changeLanguage('pt-BR')">
+                                    <i class="bi bi-flag" aria-hidden="true"></i> Português (BR)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeLanguage('en-US')">
+                                    <i class="bi bi-flag" aria-hidden="true"></i> English (US)
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Link para Documentação da API -->
+                    <div class="me-3">
+                        <a href="/api/docs" class="btn btn-outline-info" title="Documentação da API" target="_blank" aria-label="Abrir documentação da API em nova aba">
+                            <i class="bi bi-book" aria-hidden="true"></i> API Docs
+                        </a>
+                    </div>
+                    
+                    <!-- Notificações -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary position-relative" type="button" data-bs-toggle="dropdown" id="notificationBtn">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" style="width: 350px;">
+                            <li><h6 class="dropdown-header">Notificações</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <div id="notificationsList">
+                                <li><span class="dropdown-item-text text-muted">Carregando...</span></li>
+                            </div>
+                        </ul>
+                    </div>
+                        </div>
+                        <hr class="my-4">
+                        
+                        <!-- Quick Stats -->
+                        <div class="row mt-4" id="quickStats">
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-lightbulb text-primary" style="font-size: 2rem;"></i>
+                                        <h5 class="card-title mt-2">Recomendações</h5>
+                                        <p class="card-text" id="totalRecommendations">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-kanban text-success" style="font-size: 2rem;"></i>
+                                        <h5 class="card-title mt-2">Projetos</h5>
+                                        <p class="card-text" id="totalProjects">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-graph-up text-warning" style="font-size: 2rem;"></i>
+                                        <h5 class="card-title mt-2">ROI Médio</h5>
+                                        <p class="card-text" id="avgROI">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-currency-dollar text-info" style="font-size: 2rem;"></i>
+                                        <h5 class="card-title mt-2">Economia Mensal</h5>
+                                        <p class="card-text" id="monthlySavingsDisplay">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 1: Central de Inteligência e Recomendação -->
+        <div id="intelligence" class="module-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <h2><i class="bi bi-brain text-primary"></i> Central de Inteligência e Recomendação</h2>
+                    <p class="text-muted">Descreva um processo manual e receba sugestões de automação da IA</p>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-chat-dots"></i> Descreva seu Processo</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="processForm">
+                                <div class="mb-3">
+                                    <label for="processDescription" class="form-label">Descrição do Processo Manual:</label>
+                                    <textarea class="form-control" id="processDescription" rows="6" 
+                                        placeholder="Ex: Todo mês digito manualmente notas fiscais em planilhas Excel, demora cerca de 40 horas e é muito propenso a erros..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-magic"></i> Gerar Diagnóstico
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-lightbulb"></i> Recomendações da IA</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recommendationsContainer">
+                                <p class="text-muted">Descreva um processo acima para receber recomendações personalizadas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: Painel de Projetos de Automação -->
+        <div id="projects" class="module-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2><i class="bi bi-kanban text-success"></i> Meus Projetos de Automação</h2>
+                            <p class="text-muted">Gerencie suas automações com sistema Kanban</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                                <i class="bi bi-plus"></i> Novo Projeto
+                            </button>
+                            <button class="btn btn-outline-primary ms-2" onclick="showTemplatesModal()">
+                                <i class="bi bi-file-earmark-text"></i> Usar Template
+                            </button>
+                            <div class="btn-group ms-2" role="group">
+                                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-download"></i> Exportar
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="exportDashboardPDF()">
+                                        <i class="bi bi-file-pdf"></i> Dashboard (PDF)
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportProjectsExcel()">
+                                        <i class="bi bi-file-excel"></i> Projetos (Excel)
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportROIExcel()">
+                                        <i class="bi bi-file-excel"></i> ROI (Excel)
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros e Busca -->
+            <div class="filter-section">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="search-box">
+                            <i class="bi bi-search search-icon" aria-hidden="true"></i>
+                            <input type="text" class="form-control" id="projectSearch" placeholder="Buscar projetos..." aria-label="Buscar projetos" aria-describedby="searchHelp">
+                            <div id="searchHelp" class="visually-hidden">Digite o nome ou descrição do projeto para filtrar a lista</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-primary w-100" onclick="toggleAdvancedSearch()">
+                            <i class="bi bi-funnel"></i> Busca Avançada
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Busca Avançada (Oculto por padrão) -->
+                <div id="advancedSearch" class="mt-3" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-search text-primary"></i> Filtros Avançados
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="advancedStatus" class="form-label">Status</label>
+                                    <select class="form-select" id="advancedStatus">
+                                        <option value="">Todos os status</option>
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Em Andamento">Em Andamento</option>
+                                        <option value="Concluído">Concluído</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="advancedPriority" class="form-label">Prioridade</label>
+                                    <select class="form-select" id="advancedPriority">
+                                        <option value="">Todas as prioridades</option>
+                                        <option value="Alta">Alta</option>
+                                        <option value="Média">Média</option>
+                                        <option value="Baixa">Baixa</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="advancedROI" class="form-label">ROI Mínimo (%)</label>
+                                    <input type="number" class="form-control" id="advancedROI" placeholder="Ex: 50">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="advancedPeriod" class="form-label">Período</label>
+                                    <select class="form-select" id="advancedPeriod">
+                                        <option value="">Todos os períodos</option>
+                                        <option value="7">Últimos 7 dias</option>
+                                        <option value="30">Últimos 30 dias</option>
+                                        <option value="90">Últimos 90 dias</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3" id="customDateRange" style="display: none;">
+                                <div class="col-md-6">
+                                    <label for="advancedStartDate" class="form-label">Data Inicial</label>
+                                    <input type="date" class="form-control" id="advancedStartDate">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="advancedEndDate" class="form-label">Data Final</label>
+                                    <input type="date" class="form-control" id="advancedEndDate">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="advancedMaxCost" class="form-label">Custo Máximo (R$)</label>
+                                    <input type="number" class="form-control" id="advancedMaxCost" placeholder="Ex: 10000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="advancedMinSavings" class="form-label">Economia Mínima (R$/mês)</label>
+                                    <input type="number" class="form-control" id="advancedMinSavings" placeholder="Ex: 1000">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="advancedHasTools">
+                                        <label class="form-check-label" for="advancedHasTools">
+                                            Apenas projetos com ferramentas recomendadas
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <button class="btn btn-primary me-2" onclick="applyAdvancedSearch()">
+                                        <i class="bi bi-search"></i> Aplicar Filtros
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="clearAdvancedSearch()">
+                                        <i class="bi bi-x-circle"></i> Limpar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filtros Rápidos -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="filter-badges">
+                            <span class="badge filter-badge active" data-filter="all">Todos</span>
+                            <span class="badge filter-badge bg-warning text-dark" data-filter="Pendente">Pendente</span>
+                            <span class="badge filter-badge bg-info" data-filter="Em Andamento">Em Andamento</span>
+                            <span class="badge filter-badge bg-success" data-filter="Concluído">Concluído</span>
+                            <span class="badge filter-badge bg-danger" data-filter="Alta">Alta Prioridade</span>
+                            <span class="badge filter-badge bg-secondary" data-filter="Média">Média Prioridade</span>
+                            <span class="badge filter-badge bg-success" data-filter="Baixa">Baixa Prioridade</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5><i class="bi bi-clock"></i> Pendente <span class="badge bg-light text-dark" id="pendingCount">0</span></h5>
+                        </div>
+                        <div class="card-body" id="pendingColumn">
+                            <!-- Projetos pendentes serão carregados aqui -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="bi bi-play-circle"></i> Em Andamento <span class="badge bg-light text-dark" id="inProgressCount">0</span></h5>
+                        </div>
+                        <div class="card-body" id="inProgressColumn">
+                            <!-- Projetos em andamento serão carregados aqui -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="bi bi-check-circle"></i> Concluído <span class="badge bg-light text-dark" id="completedCount">0</span></h5>
+                        </div>
+                        <div class="card-body" id="completedColumn">
+                            <!-- Projetos concluídos serão carregados aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Dashboard de Impacto -->
+        <div id="dashboard" class="module-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <h2><i class="bi bi-graph-up text-warning"></i> Dashboard de Impacto</h2>
+                    <p class="text-muted">Visualize o impacto das suas automações</p>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-lightning"></i> Consumo de Energia</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="energyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-people"></i> Ocupação de Salas</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 4: Análise de ROI -->
+        <div id="roi" class="module-section" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <h2><i class="bi bi-calculator text-info"></i> Análise de ROI</h2>
+                    <p class="text-muted">Calcule o retorno sobre investimento das suas automações</p>
+                </div>
+            </div>
+            
+            <!-- Filtros de Período -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-funnel text-primary"></i> Filtros de Período
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="periodFilter" class="form-label">Período</label>
+                                    <select class="form-select" id="periodFilter" onchange="toggleCustomDateRange()">
+                                        <option value="all">Todos os períodos</option>
+                                        <option value="7">Últimos 7 dias</option>
+                                        <option value="30">Últimos 30 dias</option>
+                                        <option value="90">Últimos 90 dias</option>
+                                        <option value="custom">Período personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3" id="customDateRange" style="display: none;">
+                                    <label for="startDate" class="form-label">Data Inicial</label>
+                                    <input type="date" class="form-control" id="startDate">
+                                </div>
+                                <div class="col-md-3" id="customDateRangeEnd" style="display: none;">
+                                    <label for="endDate" class="form-label">Data Final</label>
+                                    <input type="date" class="form-control" id="endDate">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button class="btn btn-primary" onclick="applyPeriodFilter()">
+                                        <i class="bi bi-search"></i> Aplicar Filtro
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-bar-chart"></i> ROI por Projeto
+                                <small class="text-muted">(Clique para detalhes)</small>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="roiChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-pie-chart"></i> Status dos Projetos
+                                <small class="text-muted">(Clique para filtrar)</small>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="projectChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-calendar-timeline"></i> Timeline de Projetos
+                                <small class="text-muted">(Clique para detalhes do mês)</small>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-8">
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-cash-stack"></i> Resumo Financeiro</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="financialSummary">
+                                <!-- Resumo financeiro será carregado aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-table"></i> Detalhamento por Projeto</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="roiTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Projeto</th>
+                                            <th>Custo de Implementação</th>
+                                            <th>Economia Mensal</th>
+                                            <th>ROI (%)</th>
+                                            <th>Payback (meses)</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dados serão carregados aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Modal para Adicionar Projeto -->
+    <div class="modal fade" id="addProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Projeto de Automação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProjectForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="projectTitle" class="form-label">Título do Projeto</label>
+                                <input type="text" class="form-control" id="projectTitle" name="title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="projectPriority" class="form-label">Prioridade</label>
+                                <select class="form-select" id="projectPriority" name="priority">
+                                    <option value="Baixa">Baixa</option>
+                                    <option value="Média" selected>Média</option>
+                                    <option value="Alta">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectDescription" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="projectDescription" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="estimatedHours" class="form-label">Horas Estimadas</label>
+                                <input type="number" class="form-control" id="estimatedHours" name="estimated_hours">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="implementationCost" class="form-label">Custo de Implementação (R$)</label>
+                                <input type="number" class="form-control" id="implementationCost" name="implementation_cost" step="0.01">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="monthlySavings" class="form-label">Economia Mensal (R$)</label>
+                                <input type="number" class="form-control" id="monthlySavings" name="monthly_savings" step="0.01">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="deadline" class="form-label">Prazo (Opcional)</label>
+                                <input type="date" class="form-control" id="deadline" name="deadline">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProject()">Salvar Projeto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Templates -->
+    <div class="modal fade" id="templatesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-earmark-text text-primary"></i> Templates de Projetos
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="templateCategory" class="form-label">Categoria</label>
+                            <select class="form-select" id="templateCategory">
+                                <option value="">Todas as categorias</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Operações">Operações</option>
+                                <option value="Atendimento">Atendimento</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="TI">TI</option>
+                                <option value="Vendas">Vendas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="templateSearch" class="form-label">Buscar Templates</label>
+                            <input type="text" class="form-control" id="templateSearch" placeholder="Buscar templates...">
+                        </div>
+                    </div>
+                    <div id="templatesContainer" class="row">
+                        <!-- Templates serão carregados aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js - Versão Estável -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" 
+            onerror="console.error('Erro ao carregar Chart.js v3 do CDN principal')"></script>
+    <!-- Fallback Chart.js -->
+    <script>
+        if (typeof Chart === 'undefined') {
+            console.log('Tentando carregar Chart.js do CDN alternativo...');
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+            script.onload = () => console.log('Chart.js v3 carregado do CDN alternativo');
+            script.onerror = () => {
+                console.error('Falha ao carregar Chart.js v3 de ambos os CDNs');
+                // Tentar versão ainda mais antiga como último recurso
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js';
+                fallbackScript.onload = () => console.log('Chart.js v2 carregado como fallback');
+                fallbackScript.onerror = () => console.error('Falha total ao carregar Chart.js');
+                document.head.appendChild(fallbackScript);
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    <!-- App JavaScript Consolidado -->
+    <script>
+        // Função para aguardar Chart.js estar disponível
+        function waitForChart() {
+            return new Promise((resolve) => {
+                if (typeof Chart !== 'undefined') {
+                    console.log('Chart.js já está disponível');
+                    resolve();
+                    return;
+                }
+                
+                console.log('Aguardando Chart.js estar disponível...');
+                let attempts = 0;
+                const maxAttempts = 50; // 5 segundos com intervalos de 100ms
+                
+                const checkChart = setInterval(() => {
+                    attempts++;
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(checkChart);
+                        console.log('Chart.js carregado com sucesso após', attempts * 100, 'ms');
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkChart);
+                        console.error('Timeout: Chart.js não foi carregado em 5 segundos');
+                        resolve(); // Resolve mesmo assim para não travar o app
+                    }
+                }, 100);
+            });
+        }
+        
+        // Verificar se Chart.js está carregado antes de inicializar o app
+        window.addEventListener('load', async () => {
+            await waitForChart();
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js não foi carregado corretamente');
+            } else {
+                console.log('Chart.js carregado com sucesso');
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registrado com sucesso:', registration.scope);
+                        
+                        // Verificar atualizações
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nova versão disponível
+                                    if (confirm('Nova versão disponível! Deseja atualizar?')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            });
+        }
+        
+        // Instalar PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botão de instalação
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            const installButton = document.createElement('button');
+            installButton.className = 'btn btn-success position-fixed';
+            installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000;';
+            installButton.innerHTML = '<i class="bi bi-download"></i> Instalar App';
+            installButton.onclick = installPWA;
+            
+            document.body.appendChild(installButton);
+        }
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA instalado pelo usuário');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        // Detectar se app está rodando como PWA
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA instalado com sucesso!');
+            // Remover botão de instalação se existir
+            const installButton = document.querySelector('button[onclick="installPWA()"]');
+            if (installButton) {
+                installButton.remove();
+            }
+        });
+        
+        // Verificar se está rodando como PWA
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            console.log('App rodando como PWA');
+            document.body.classList.add('pwa-mode');
+        }
+
+        // Funções de fluxos removidas - agora estão no app.js
+    </script>
+</body>
+</html>
